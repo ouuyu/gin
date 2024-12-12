@@ -19,3 +19,10 @@ const (
 	UserStatusEnabled  = 1
 	UserStatusDisabled = 2
 )
+
+var (
+	RegisterEnabled          = true
+	PasswordRegisterEnabled  = true
+	EmailVerificationEnabled = false
+	EmailVerificationPurpose = "email_verification"
+)

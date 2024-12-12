@@ -4,6 +4,7 @@ import (
 	"log"
 	"main/common"
 	"main/model"
+	"main/router"
 	"os"
 	"strconv"
 
@@ -33,6 +34,7 @@ func main() {
 	if port == "" {
 		port = strconv.Itoa(*common.Port)
 	}
+	router.InitRouter(server)
 	err = server.Run(":" + port)
 	if err != nil {
 		log.Println(err)
