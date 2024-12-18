@@ -2,6 +2,7 @@ package router
 
 import (
 	"main/controller"
+	"main/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,5 +18,13 @@ func SetApiRouter(router *gin.Engine) {
 	userRouter := api.Group("/user")
 	{
 		userRouter.POST("/register", controller.Register)
+		userRouter.POST("/login", controller.Login)
+
+		// 用户侧路由
+		selfRouter := userRouter.Group("/")
+		selfRouter.Use(middleware.AuthUser())
+		{
+			selfRouter.GET("/token", controller.GenerateToken)
+		}
 	}
 }

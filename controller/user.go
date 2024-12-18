@@ -5,8 +5,10 @@ import (
 	"main/common"
 	"main/model"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func Register(c *gin.Context) {
@@ -74,5 +76,72 @@ func Register(c *gin.Context) {
 		"success": true,
 		"message": "",
 	})
-	return
+}
+
+func Login(c *gin.Context) {
+	var user model.User
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无效的参数",
+		})
+		return
+	}
+
+	// 验证用户名和密码
+	loginUser, err := user.ValidateAndLogin()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "登录成功",
+		"data": gin.H{
+			"token":    loginUser.Token,
+			"username": loginUser.Username,
+			"role":     loginUser.Role,
+		},
+	})
+}
+
+func GenerateToken(c *gin.Context) {
+	id := c.GetInt("id")
+	user, err := model.GetUserById(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	user.Token = uuid.New().String()
+	user.Token = strings.Replace(user.Token, "-", "", -1)
+
+	if model.DB.Where("token = ?", user.Token).First(user).RowsAffected != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "请重试，系统生成的 UUID 重复？",
+		})
+		return
+	}
+
+	if err := user.Update(false); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功生成新的令牌",
+		"data":    user.Token,
+	})
 }
