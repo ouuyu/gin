@@ -30,7 +30,7 @@ func authHelper(c *gin.Context, minRole int) {
 		c.Abort()
 		return
 	}
-	user, err := model.GetUserById(claims.ID)
+	user, err := model.GetUserById(claims.ID, false)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"success": false,
@@ -55,12 +55,12 @@ func authHelper(c *gin.Context, minRole int) {
 
 func AuthAdmin() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		authHelper(c, 100)
+		authHelper(c, common.RoleAdmin)
 	}
 }
 
 func AuthUser() func(c *gin.Context) {
 	return func(c *gin.Context) {
-		authHelper(c, 1)
+		authHelper(c, common.RoleUser)
 	}
 }

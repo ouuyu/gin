@@ -112,7 +112,7 @@ func Login(c *gin.Context) {
 
 func GenerateToken(c *gin.Context) {
 	id := c.GetInt("id")
-	user, err := model.GetUserById(id)
+	user, err := model.GetUserById(id, false)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -143,5 +143,28 @@ func GenerateToken(c *gin.Context) {
 		"success": true,
 		"message": "成功生成新的令牌",
 		"data":    user.Token,
+	})
+}
+
+func GetUserInfo(c *gin.Context) {
+	id := c.GetInt("id")
+	user, err := model.GetUserById(id, false)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	var cleanUser model.User
+	cleanUser.Username = user.Username
+	cleanUser.Role = user.Role
+	cleanUser.ID = user.ID
+	cleanUser.Email = user.Email
+	cleanUser.Token = user.Token
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功获取用户信息",
+		"data":    cleanUser,
 	})
 }

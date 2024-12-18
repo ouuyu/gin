@@ -24,6 +24,7 @@ func SetApiRouter(router *gin.Engine) {
 		selfRouter := userRouter.Group("/")
 		selfRouter.Use(middleware.AuthUser())
 		{
+			selfRouter.GET("/info", controller.GetUserInfo)
 			selfRouter.GET("/token", controller.GenerateToken)
 		}
 	}
