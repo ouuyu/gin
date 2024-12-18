@@ -47,6 +47,14 @@ func authHelper(c *gin.Context, minRole int) {
 		c.Abort()
 		return
 	}
+	if user.Status != common.UserStatusEnabled {
+		c.JSON(http.StatusForbidden, gin.H{
+			"success": false,
+			"message": "用户已被禁用",
+		})
+		c.Abort()
+		return
+	}
 	c.Set("username", user.Username)
 	c.Set("role", user.Role)
 	c.Set("id", user.ID)

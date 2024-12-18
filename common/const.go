@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 var (
 	Version = "0.0.1"
 )
@@ -25,4 +27,25 @@ var (
 	PasswordRegisterEnabled  = true
 	EmailVerificationEnabled = false
 	EmailVerificationPurpose = "email_verification"
+)
+
+// API 限流 单位: 秒
+// 不可超过限流键的过期时间
+var (
+	RateLimitKeyExpirationDuration = 20 * time.Minute
+
+	GlobalApiRateLimitNum            = 60
+	GlobalApiRateLimitDuration int64 = 3 * 60
+
+	GlobalWebRateLimitNum            = 60
+	GlobalWebRateLimitDuration int64 = 3 * 60
+
+	UploadRateLimitNum            = 10
+	UploadRateLimitDuration int64 = 60
+
+	DownloadRateLimitNum            = 10
+	DownloadRateLimitDuration int64 = 60
+
+	CriticalRateLimitNum            = 20
+	CriticalRateLimitDuration int64 = 20 * 60
 )
