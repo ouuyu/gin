@@ -66,15 +66,19 @@ func Register(c *gin.Context) {
 		cleanUser.Email = user.Email
 	}
 	if err := cleanUser.Insert(); err != nil {
+		errMessage := err.Error()
+		if strings.Contains(errMessage, "UNIQUE constraint failed") {
+			errMessage = "用户名已存在"
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": err.Error(),
+			"message": errMessage,
 		})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "注册成功",
 	})
 }
 
@@ -89,12 +93,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 验证用户名和密码
 	loginUser, err := user.ValidateAndLogin()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": err.Error(),
+			"message": "用户名或密码错误",
 		})
 		return
 	}

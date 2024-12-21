@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"main/common"
+	"main/middleware"
 	"main/model"
 	"main/router"
 	"os"
@@ -27,9 +28,10 @@ func main() {
 		}
 	}()
 
-	common.SysLog("db initialized")
+	common.SysLog("Database initialized")
 
 	server := gin.Default()
+	server.Use(middleware.CORS())
 	var port = os.Getenv("PORT")
 	if port == "" {
 		port = strconv.Itoa(*common.Port)
