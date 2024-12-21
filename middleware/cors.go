@@ -7,7 +7,7 @@ import (
 
 func CORS() gin.HandlerFunc {
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"https://gin-template.vercel.app", "http://localhost:5173"}
+	config.AllowOrigins = []string{"http://localhost:5173", "http://localhost:3000"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "token", "Authorization"}
 	config.AllowCredentials = true
 	return cors.New(config)

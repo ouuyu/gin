@@ -50,7 +50,7 @@ func Register(c *gin.Context) {
 			})
 			return
 		}
-		if !common.VerifyCodeWithKey(user.Email, user.VerificationCode, common.EmailVerificationPurpose) {
+		if !common.VerifyCodeWithKey(user.Email, user.VerificationCode) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "验证码错误或已过期",
@@ -169,5 +169,26 @@ func GetUserInfo(c *gin.Context) {
 		"success": true,
 		"message": "成功获取用户信息",
 		"data":    cleanUser,
+	})
+}
+
+func GetUserList(c *gin.Context) {
+	page := c.GetInt("page")
+	pageSize := c.GetInt("pageSize")
+	offset := (page - 1) * pageSize
+
+	users, err := model.GetUserList(offset, pageSize)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功获取用户列表",
+		"data":    users,
 	})
 }

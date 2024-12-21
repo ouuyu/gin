@@ -9,23 +9,25 @@ import (
 
 func SetApiRouter(router *gin.Engine) {
 	api := router.Group("/api")
-	api.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	api.GET("/config", controller.GetCleanConfig)
 
 	userRouter := api.Group("/user")
 	{
 		userRouter.POST("/register", controller.Register)
 		userRouter.POST("/login", controller.Login)
 
-		// 用户侧路由
 		selfRouter := userRouter.Group("/")
 		selfRouter.Use(middleware.AuthUser())
 		{
 			selfRouter.GET("/info", controller.GetUserInfo)
 			selfRouter.GET("/token", controller.GenerateToken)
 		}
+	}
+
+	systemRouter := api.Group("/system")
+	systemRouter.Use(middleware.AuthAdmin())
+	{
+		systemRouter.GET("/config", controller.GetSystemConfigs)
+		systemRouter.PUT("/config", controller.UpdateSystemConfig)
 	}
 }

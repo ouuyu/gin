@@ -24,6 +24,9 @@ go.work
 # VSCode files
 .vscode/
 
+# VSCodeCounter
+.VSCodeCounter/
+
 # Temporary files
 *.swp
 *~

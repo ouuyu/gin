@@ -52,11 +52,14 @@ func InitDB() (err error) {
 	}
 	if err == nil {
 		DB = db
-		err = db.AutoMigrate(&User{})
+		err = db.AutoMigrate(&User{}, &Config{})
 		if err != nil {
 			return err
 		}
 		err = createRootAccountIfNeed()
+		if err != nil {
+			return err
+		}
 		return err
 	} else {
 		common.FatalLog(err)

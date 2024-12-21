@@ -3,7 +3,10 @@ package common
 import "time"
 
 var (
-	Version = "0.0.1"
+	Version    = "0.0.1"
+	SystemName = "管理系统"
+	Footer     = ""
+	HomePage   = ""
 )
 
 var (
@@ -26,7 +29,20 @@ var (
 	RegisterEnabled          = true
 	PasswordRegisterEnabled  = true
 	EmailVerificationEnabled = false
-	EmailVerificationPurpose = "email_verification"
+	RecaptchaEnabled         = false
+)
+
+var (
+	SMTPServer   = ""
+	SMTPPort     = 587
+	SMTPUser     = ""
+	SMTPPassword = ""
+	SMTPFrom     = ""
+)
+
+var (
+	RecaptchaSiteKey   = ""
+	RecaptchaSecretKey = ""
 )
 
 // API 限流 单位: 秒

@@ -19,7 +19,7 @@ type User struct {
 
 func (u *User) Insert() error {
 	var err error
-	// 先验证未哈希的密码
+	// 验证未经过哈希的密码
 	if err := common.Validate.Struct(u); err != nil {
 		return err
 	}
@@ -79,4 +79,13 @@ func GetUserById(id int, clean bool) (*User, error) {
 		DB.Where("id = ?", id).First(&user)
 	}
 	return &user, nil
+}
+
+func GetUserList(offset, pageSize int) ([]User, error) {
+	var users []User
+	err := DB.Offset(offset).Limit(pageSize).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
