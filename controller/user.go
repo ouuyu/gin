@@ -135,7 +135,7 @@ func GenerateToken(c *gin.Context) {
 		return
 	}
 
-	if err := user.Update(false); err != nil {
+	if err := user.Update(user.ID); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -203,5 +203,46 @@ func GetUserList(c *gin.Context) {
 			"list":  users,
 			"total": total,
 		},
+	})
+}
+
+func ResetUserPassword(c *gin.Context) {
+	id := c.GetInt("id")
+	role := c.GetInt("role")
+	userid := c.GetInt("userid")
+	password := c.DefaultQuery("password", "123456")
+
+	if role == common.RoleUser {
+		if userid != id {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "您没有权限重置其他用户的密码",
+			})
+			return
+		}
+	}
+	if userid == 0 {
+		userid = id
+	}
+
+	user, err := model.GetUserById(userid, false)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if err := user.UpdatePassword(password); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功重置用户密码",
 	})
 }

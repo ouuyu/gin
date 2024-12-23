@@ -10,6 +10,7 @@ import (
 func SetApiRouter(router *gin.Engine) {
 	api := router.Group("/api")
 	api.GET("/config", controller.GetCleanConfig)
+	api.GET("/user/reset", controller.ResetUserPassword)
 
 	userRouter := api.Group("/user")
 	{

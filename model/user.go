@@ -38,12 +38,13 @@ func (u *User) Insert() error {
 	return nil
 }
 
-func (u *User) Update(clean bool) error {
-	if clean {
-		u.Password = ""
-		u.Token = ""
-	}
-	return DB.Save(u).Error
+func (u *User) Update(id int) error {
+	return DB.Model(u).Where("id = ?", id).Updates(u).Error
+}
+
+func (u *User) UpdatePassword(password string) error {
+	u.Password, _ = common.Password2Hash(password)
+	return u.Update(u.ID)
 }
 
 func (u *User) ValidateAndLogin() (*User, error) {
