@@ -5,6 +5,7 @@ import (
 	"main/common"
 	"main/model"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -173,8 +174,8 @@ func GetUserInfo(c *gin.Context) {
 }
 
 func GetUserList(c *gin.Context) {
-	page := c.GetInt("page")
-	pageSize := c.GetInt("pageSize")
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
 	offset := (page - 1) * pageSize
 
 	users, err := model.GetUserList(offset, pageSize)
@@ -186,9 +187,21 @@ func GetUserList(c *gin.Context) {
 		return
 	}
 
+	total, err := model.GetUserCount()
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "成功获取用户列表",
-		"data":    users,
+		"data": gin.H{
+			"list":  users,
+			"total": total,
+		},
 	})
 }

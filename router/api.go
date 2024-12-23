@@ -29,5 +29,6 @@ func SetApiRouter(router *gin.Engine) {
 	{
 		systemRouter.GET("/config", controller.GetSystemConfigs)
 		systemRouter.PUT("/config", controller.UpdateSystemConfig)
+		systemRouter.GET("/users", controller.GetUserList)
 	}
 }

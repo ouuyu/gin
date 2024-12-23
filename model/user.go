@@ -17,6 +17,8 @@ type User struct {
 	VerificationCode string `json:"verification_code" gorm:"-:all"`
 }
 
+const cleanUserFields = "username, role, id, email, status, token" // 不向前端发送敏感信息
+
 func (u *User) Insert() error {
 	var err error
 	// 验证未经过哈希的密码
@@ -74,7 +76,7 @@ func (u *User) ValidateAndLogin() (*User, error) {
 func GetUserById(id int, clean bool) (*User, error) {
 	var user User
 	if clean {
-		DB.Select("username", "role", "id", "email", "status", "token").Where("id = ?", id).First(&user)
+		DB.Select(cleanUserFields).Where("id = ?", id).First(&user)
 	} else {
 		DB.Where("id = ?", id).First(&user)
 	}
@@ -83,9 +85,15 @@ func GetUserById(id int, clean bool) (*User, error) {
 
 func GetUserList(offset, pageSize int) ([]User, error) {
 	var users []User
-	err := DB.Offset(offset).Limit(pageSize).Find(&users).Error
+	err := DB.Offset(offset).Limit(pageSize).Select(cleanUserFields).Find(&users).Error
 	if err != nil {
 		return nil, err
 	}
 	return users, nil
+}
+
+func GetUserCount() (int64, error) {
+	var count int64
+	err := DB.Model(&User{}).Count(&count).Error
+	return count, err
 }
