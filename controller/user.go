@@ -209,7 +209,7 @@ func GetUserList(c *gin.Context) {
 func ResetUserPassword(c *gin.Context) {
 	id := c.GetInt("id")
 	role := c.GetInt("role")
-	userid := c.GetInt("userid")
+	userid, _ := strconv.Atoi(c.DefaultQuery("userid", strconv.Itoa(id)))
 	password := c.DefaultQuery("password", "123456")
 
 	if role == common.RoleUser {
@@ -220,9 +220,6 @@ func ResetUserPassword(c *gin.Context) {
 			})
 			return
 		}
-	}
-	if userid == 0 {
-		userid = id
 	}
 
 	user, err := model.GetUserById(userid, false)

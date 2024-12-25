@@ -76,10 +76,14 @@ func (u *User) ValidateAndLogin() (*User, error) {
 
 func GetUserById(id int, clean bool) (*User, error) {
 	var user User
+	var err error
 	if clean {
-		DB.Select(cleanUserFields).Where("id = ?", id).First(&user)
+		err = DB.Select(cleanUserFields).Where("id = ?", id).First(&user).Error
 	} else {
-		DB.Where("id = ?", id).First(&user)
+		err = DB.Where("id = ?", id).First(&user).Error
+	}
+	if err != nil {
+		return nil, err
 	}
 	return &user, nil
 }

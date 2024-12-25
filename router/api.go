@@ -10,8 +10,6 @@ import (
 func SetApiRouter(router *gin.Engine) {
 	api := router.Group("/api")
 	api.GET("/config", controller.GetCleanConfig)
-	api.GET("/user/reset", controller.ResetUserPassword)
-
 	userRouter := api.Group("/user")
 	{
 		userRouter.POST("/register", controller.Register)
@@ -22,6 +20,7 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			selfRouter.GET("/info", controller.GetUserInfo)
 			selfRouter.GET("/token", controller.GenerateToken)
+			selfRouter.GET("/reset", controller.ResetUserPassword)
 		}
 	}
 
