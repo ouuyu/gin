@@ -243,3 +243,32 @@ func ResetUserPassword(c *gin.Context) {
 		"message": "成功重置用户密码",
 	})
 }
+
+func UpdateUser(c *gin.Context) {
+	var user model.User
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无效的参数",
+		})
+		return
+	}
+
+	user.Username = ""
+	user.Password = ""
+	user.Token = ""
+
+	if err := user.Update(user.ID); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功更新用户信息",
+	})
+}
