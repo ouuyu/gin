@@ -20,6 +20,13 @@ func GetCleanConfig(c *gin.Context) {
 		PasswordRegisterEnabled:  config.PasswordRegisterEnabled,
 		EmailVerificationEnabled: config.EmailVerificationEnabled,
 		RecaptchaEnabled:         config.RecaptchaEnabled,
+		SMTPServer:               config.SMTPServer,
+		SMTPPort:                 config.SMTPPort,
+		SMTPUser:                 config.SMTPUser,
+		SMTPPassword:             config.SMTPPassword,
+		SMTPFrom:                 config.SMTPFrom,
+		RecaptchaSiteKey:         config.RecaptchaSiteKey,
+		RecaptchaSecretKey:       config.RecaptchaSecretKey,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
