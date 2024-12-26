@@ -23,7 +23,6 @@ func GetCleanConfig(c *gin.Context) {
 		SMTPServer:               config.SMTPServer,
 		SMTPPort:                 config.SMTPPort,
 		SMTPUser:                 config.SMTPUser,
-		SMTPPassword:             config.SMTPPassword,
 		SMTPFrom:                 config.SMTPFrom,
 		RecaptchaSiteKey:         config.RecaptchaSiteKey,
 		RecaptchaSecretKey:       config.RecaptchaSecretKey,
