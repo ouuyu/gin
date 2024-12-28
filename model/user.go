@@ -114,11 +114,3 @@ func (u *User) UpdateGroup(groupId int) error {
 	u.GroupId = groupId
 	return DB.Model(u).Update("group_id", groupId).Error
 }
-
-func GetUsersByGroupId(groupId int) ([]User, error) {
-	var users []User
-	err := DB.Preload("Group").
-		Where("group_id = ?", groupId).
-		Find(&users).Error
-	return users, err
-}

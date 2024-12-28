@@ -60,18 +60,11 @@ func UpdateGroup(c *gin.Context) {
 	})
 }
 
-// DeleteGroup 删除用户组
-// @Summary 删除用户组
-// @Tags 用户组管理
-// @Produce json
-// @Param id path int true "用户组ID"
-// @Success 200 {object} gin.H
-// @Router /groups/{id} [delete]
 func DeleteGroup(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	group := &model.Group{ID: id}
 
-	if err := group.Delete(); err != nil {
+	if err := group.Delete(false); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"message": "删除用户组失败: " + err.Error(),
@@ -85,13 +78,6 @@ func DeleteGroup(c *gin.Context) {
 	})
 }
 
-// GetGroup 获取用户组信息
-// @Summary 获取用户组信息
-// @Tags 用户组管理
-// @Produce json
-// @Param id path int true "用户组ID"
-// @Success 200 {object} gin.H
-// @Router /groups/{id} [get]
 func GetGroup(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	group, err := model.GetGroupById(id)
@@ -110,12 +96,6 @@ func GetGroup(c *gin.Context) {
 	})
 }
 
-// GetAllGroups 获取所有用户组
-// @Summary 获取所有用户组
-// @Tags 用户组管理
-// @Produce json
-// @Success 200 {object} gin.H
-// @Router /groups [get]
 func GetAllGroups(c *gin.Context) {
 	groups, err := model.GetAllGroups()
 	if err != nil {

@@ -152,7 +152,15 @@ func GenerateToken(c *gin.Context) {
 
 func GetUserInfo(c *gin.Context) {
 	id := c.GetInt("id")
-	user, err := model.GetUserById(id, true)
+	userid, _ := strconv.Atoi(c.DefaultQuery("userid", strconv.Itoa(id)))
+	if userid != id && c.GetInt("role") < common.RoleAdmin {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "您没有权限查看其他用户的信息",
+		})
+		return
+	}
+	user, err := model.GetUserById(userid, true)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
