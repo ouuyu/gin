@@ -5,8 +5,8 @@ import (
 )
 
 type Group struct {
-	Id   int    `json:"id" gorm:"type:int;primaryKey"`
-	Name string `json:"name" gorm:"unique;index" validate:"max=12"`
+	ID   int    `json:"id" gorm:"type:int;primaryKey"`
+	Name string `json:"name" gorm:"unique;index" validate:"min=1,max=12"`
 }
 
 const cleanGroupFields = "id, name"
@@ -27,7 +27,7 @@ func (g *Group) Update() error {
 
 func (g *Group) Delete() error {
 	// 删除组之前，将该组的所有用户的组ID设为0
-	if err := DB.Model(&User{}).Where("group_id = ?", g.Id).Update("group_id", 0).Error; err != nil {
+	if err := DB.Model(&User{}).Where("group_id = ?", g.ID).Update("group_id", 0).Error; err != nil {
 		return err
 	}
 	return DB.Delete(g).Error

@@ -32,16 +32,17 @@ func SetApiRouter(router *gin.Engine) {
 		systemRouter.PUT("/config", controller.UpdateSystemConfig)
 		systemRouter.GET("/user/list", controller.GetUserList)
 		systemRouter.POST("/user/update", controller.UpdateUser)
+		systemRouter.POST("/user/create", controller.CreateUser)
+		systemRouter.DELETE("/user/delete/:id", controller.DeleteUser)
 	}
 
-	// 用户组管理路由
-	groupController := &controller.GroupController{}
-	groups := api.Group("/groups")
+	groupRouter := api.Group("/group")
+	groupRouter.Use(middleware.AuthAdmin())
 	{
-		groups.POST("", groupController.CreateGroup)       // 创建用户组
-		groups.GET("", groupController.GetAllGroups)       // 获取所有用户组
-		groups.PUT("/:id", groupController.UpdateGroup)    // 更新用户组
-		groups.DELETE("/:id", groupController.DeleteGroup) // 删除用户组
-		groups.GET("/:id", groupController.GetGroup)       // 获取用户组信息
+		groupRouter.POST("/create", controller.CreateGroup)
+		groupRouter.GET("/list", controller.GetAllGroups)
+		groupRouter.PUT("/update/:id", controller.UpdateGroup)
+		groupRouter.DELETE("/delete/:id", controller.DeleteGroup)
+		groupRouter.GET("/info/:id", controller.GetGroup)
 	}
 }

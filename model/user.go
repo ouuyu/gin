@@ -6,24 +6,23 @@ import (
 )
 
 type User struct {
-	ID               int    `json:"id" gorm:"type:int;primaryKey"`
+	ID               int    `json:"id" gorm:"type:int;primaryKey;autoIncrement"`
 	Username         string `json:"username" gorm:"unique;index" validate:"required,min=5,max=12"`
-	Password         string `json:"password" validate:"required,min=6,max=20"`
+	Password         string `json:"password" validate:"required"`
 	Role             int    `json:"role" gorm:"default:0"`
-	GroupId          int    `json:"group_id" gorm:"default:0"`        // 用户所属的组ID
-	GroupName        string `json:"group_name" gorm:"-"`              // 组名称，不存储在数据库中
-	Status           int    `json:"status" gorm:"type:int;default:1"` // enabled, disabled
+	GroupId          int    `json:"group_id" gorm:"type:int;default:0"`
+	Group            Group  `json:"group" gorm:"foreignKey:GroupId;references:ID"`
+	Status           int    `json:"status" gorm:"type:int;default:1"` // 禁用用户为 2，正常用户为 1
 	Token            string `json:"token" gorm:"index"`
 	Email            string `json:"email" gorm:"index" validate:"max=50"`
 	GitHubId         string `json:"github_id" gorm:"column:github_id;index"`
 	VerificationCode string `json:"verification_code" gorm:"-:all"`
 }
 
-const cleanUserFields = "username, role, id, email, status, token" // 不向前端发送敏感信息
+const cleanUserFields = "username, role, id, email, status, token, group_id" // 不向前端发送敏感信息
 
 func (u *User) Insert() error {
 	var err error
-	// 验证未经过哈希的密码
 	if err := common.Validate.Struct(u); err != nil {
 		return err
 	}
@@ -40,19 +39,23 @@ func (u *User) Insert() error {
 	return nil
 }
 
-func (u *User) Update(id int) error {
-	return DB.Model(u).Where("id = ?", id).Updates(u).Error
+func (u *User) Update() error {
+	return DB.Model(u).Where("id = ?", u.ID).Updates(u).Error
 }
 
 func (u *User) UpdatePassword(password string) error {
 	u.Password, _ = common.Password2Hash(password)
-	return u.Update(u.ID)
+	return u.Update()
+}
+
+func (u *User) Delete(id int) error {
+	return DB.Delete(u, id).Error
 }
 
 func (u *User) ValidateAndLogin() (*User, error) {
 	var dbUser User
 	if err := DB.Where("username = ?", u.Username).First(&dbUser).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("用户不存在")
 	}
 
 	if !common.ValidatePasswordAndHash(u.Password, dbUser.Password) {
@@ -78,12 +81,11 @@ func (u *User) ValidateAndLogin() (*User, error) {
 
 func GetUserById(id int, clean bool) (*User, error) {
 	var user User
-	var err error
+	query := DB
 	if clean {
-		err = DB.Select(cleanUserFields).Where("id = ?", id).First(&user).Error
-	} else {
-		err = DB.Where("id = ?", id).First(&user).Error
+		query = query.Select(cleanUserFields)
 	}
+	err := query.Preload("Group").Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +94,10 @@ func GetUserById(id int, clean bool) (*User, error) {
 
 func GetUserList(offset, pageSize int) ([]User, error) {
 	var users []User
-	err := DB.Offset(offset).Limit(pageSize).Select(cleanUserFields).Find(&users).Error
+	err := DB.Preload("Group").
+		Offset(offset).
+		Limit(pageSize).
+		Find(&users).Error
 	if err != nil {
 		return nil, err
 	}
@@ -105,15 +110,15 @@ func GetUserCount() (int64, error) {
 	return count, err
 }
 
-// UpdateGroup 更新用户的组信息
 func (u *User) UpdateGroup(groupId int) error {
 	u.GroupId = groupId
 	return DB.Model(u).Update("group_id", groupId).Error
 }
 
-// GetUsersByGroupId 获取同组的所有用户
 func GetUsersByGroupId(groupId int) ([]User, error) {
 	var users []User
-	err := DB.Where("group_id = ?", groupId).Find(&users).Error
+	err := DB.Preload("Group").
+		Where("group_id = ?", groupId).
+		Find(&users).Error
 	return users, err
 }

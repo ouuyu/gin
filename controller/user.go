@@ -98,7 +98,7 @@ func Login(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
-			"message": "用户名或密码错误",
+			"message": "错误: " + err.Error(),
 		})
 		return
 	}
@@ -135,7 +135,7 @@ func GenerateToken(c *gin.Context) {
 		return
 	}
 
-	if err := user.Update(user.ID); err != nil {
+	if err := user.Update(); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -152,7 +152,7 @@ func GenerateToken(c *gin.Context) {
 
 func GetUserInfo(c *gin.Context) {
 	id := c.GetInt("id")
-	user, err := model.GetUserById(id, false)
+	user, err := model.GetUserById(id, true)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -160,16 +160,10 @@ func GetUserInfo(c *gin.Context) {
 		})
 		return
 	}
-	var cleanUser model.User
-	cleanUser.Username = user.Username
-	cleanUser.Role = user.Role
-	cleanUser.ID = user.ID
-	cleanUser.Email = user.Email
-	cleanUser.Token = user.Token
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "成功获取用户信息",
-		"data":    cleanUser,
+		"data":    user,
 	})
 }
 
@@ -256,10 +250,8 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	user.Username = ""
-	user.Password = ""
-	user.Token = ""
 
-	if err := user.Update(user.ID); err != nil {
+	if err := user.Update(); err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -270,5 +262,51 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "成功更新用户信息",
+	})
+}
+
+func DeleteUser(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	user := &model.User{ID: id}
+
+	if err := user.Delete(id); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功删除用户",
+	})
+}
+
+func CreateUser(c *gin.Context) {
+	var user model.User
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无效的参数",
+		})
+		return
+	}
+
+	user.Role = common.RoleUser
+	// important: 密码哈希在 Insert 方法中进行
+
+	if err := user.Insert(); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "成功创建用户",
 	})
 }

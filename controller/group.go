@@ -8,9 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GroupController struct{}
-
-func (gc *GroupController) CreateGroup(c *gin.Context) {
+func CreateGroup(c *gin.Context) {
 	var group model.Group
 	if err := c.ShouldBindJSON(&group); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -35,16 +33,7 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 	})
 }
 
-// UpdateGroup 更新用户组信息
-// @Summary 更新用户组信息
-// @Tags 用户组管理
-// @Accept json
-// @Produce json
-// @Param id path int true "用户组ID"
-// @Param group body model.Group true "用户组信息"
-// @Success 200 {object} gin.H
-// @Router /groups/{id} [put]
-func (gc *GroupController) UpdateGroup(c *gin.Context) {
+func UpdateGroup(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var group model.Group
 	if err := c.ShouldBindJSON(&group); err != nil {
@@ -55,7 +44,7 @@ func (gc *GroupController) UpdateGroup(c *gin.Context) {
 		return
 	}
 
-	group.Id = id
+	group.ID = id
 	if err := group.Update(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -78,9 +67,9 @@ func (gc *GroupController) UpdateGroup(c *gin.Context) {
 // @Param id path int true "用户组ID"
 // @Success 200 {object} gin.H
 // @Router /groups/{id} [delete]
-func (gc *GroupController) DeleteGroup(c *gin.Context) {
+func DeleteGroup(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	group := &model.Group{Id: id}
+	group := &model.Group{ID: id}
 
 	if err := group.Delete(); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -103,7 +92,7 @@ func (gc *GroupController) DeleteGroup(c *gin.Context) {
 // @Param id path int true "用户组ID"
 // @Success 200 {object} gin.H
 // @Router /groups/{id} [get]
-func (gc *GroupController) GetGroup(c *gin.Context) {
+func GetGroup(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	group, err := model.GetGroupById(id)
 	if err != nil {
@@ -127,7 +116,7 @@ func (gc *GroupController) GetGroup(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} gin.H
 // @Router /groups [get]
-func (gc *GroupController) GetAllGroups(c *gin.Context) {
+func GetAllGroups(c *gin.Context) {
 	groups, err := model.GetAllGroups()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
