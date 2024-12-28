@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Calcium-Ion/go-epay/epay"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,6 +30,17 @@ func main() {
 	}()
 
 	common.SysLog("Database initialized")
+	model.GetConfig()
+
+	client, err := epay.NewClient(&epay.Config{
+		PartnerID: common.EasyPayPid,
+		Key:       common.EasyPayKey,
+	}, common.EasyPayURL)
+	if err != nil {
+		common.FatalLog("failed to init epay client: " + err.Error())
+		return
+	}
+	common.SetEPayClient(client)
 
 	server := gin.Default()
 	server.Use(middleware.CORS())

@@ -38,6 +38,10 @@ type Config struct {
 	DownloadRateLimitDuration      int64         `json:"download_rate_limit_duration"`
 	CriticalRateLimitNum           int           `json:"critical_rate_limit_num"`
 	CriticalRateLimitDuration      int64         `json:"critical_rate_limit_duration"`
+
+	EasyPayURL string `json:"easy_pay_url"`
+	EasyPayPid string `json:"easy_pay_pid"`
+	EasyPayKey string `json:"easy_pay_key"`
 }
 
 var (
@@ -127,4 +131,7 @@ func updateGlobalVars() {
 	common.DownloadRateLimitDuration = config.DownloadRateLimitDuration
 	common.CriticalRateLimitNum = config.CriticalRateLimitNum
 	common.CriticalRateLimitDuration = config.CriticalRateLimitDuration
+	common.EasyPayURL = config.EasyPayURL
+	common.EasyPayPid = config.EasyPayPid
+	common.EasyPayKey = config.EasyPayKey
 }

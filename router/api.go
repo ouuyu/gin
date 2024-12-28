@@ -45,4 +45,13 @@ func SetApiRouter(router *gin.Engine) {
 		groupRouter.DELETE("/delete/:id", controller.DeleteGroup)
 		groupRouter.GET("/info/:id", controller.GetGroup)
 	}
+
+	orderRouter := api.Group("/orders")
+	orderRouter.Use(middleware.AuthUser())
+	{
+		orderRouter.POST("/recharge", controller.CreateOrder)
+		orderRouter.GET("/list", controller.GetOrderList)
+		orderRouter.GET("/query", controller.QueryOrder)
+	}
+
 }

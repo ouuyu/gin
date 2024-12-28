@@ -11,6 +11,7 @@ import (
 func GetCleanConfig(c *gin.Context) {
 	config := model.GetConfig()
 
+	// 用户前端拉取，不发送敏感信息
 	cleanConfig := model.Config{
 		Version:                  config.Version,
 		SystemName:               config.SystemName,
@@ -20,12 +21,7 @@ func GetCleanConfig(c *gin.Context) {
 		PasswordRegisterEnabled:  config.PasswordRegisterEnabled,
 		EmailVerificationEnabled: config.EmailVerificationEnabled,
 		RecaptchaEnabled:         config.RecaptchaEnabled,
-		SMTPServer:               config.SMTPServer,
-		SMTPPort:                 config.SMTPPort,
-		SMTPUser:                 config.SMTPUser,
-		SMTPFrom:                 config.SMTPFrom,
 		RecaptchaSiteKey:         config.RecaptchaSiteKey,
-		RecaptchaSecretKey:       config.RecaptchaSecretKey,
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -111,6 +107,12 @@ func UpdateSystemConfig(c *gin.Context) {
 		config.RecaptchaSiteKey = req.Value
 	case "recaptcha_secret_key":
 		config.RecaptchaSecretKey = req.Value
+	case "easy_pay_url":
+		config.EasyPayURL = req.Value
+	case "easy_pay_pid":
+		config.EasyPayPid = req.Value
+	case "easy_pay_key":
+		config.EasyPayKey = req.Value
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,

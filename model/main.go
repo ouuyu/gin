@@ -64,6 +64,10 @@ func InitDB() (err error) {
 		if err != nil {
 			return err
 		}
+		err = db.AutoMigrate(&Order{})
+		if err != nil {
+			return err
+		}
 	} else {
 		common.FatalLog(err)
 	}

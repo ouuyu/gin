@@ -65,3 +65,9 @@ var (
 	CriticalRateLimitNum            = 20
 	CriticalRateLimitDuration int64 = 20 * 60
 )
+
+var (
+	EasyPayURL = ""
+	EasyPayPid = ""
+	EasyPayKey = ""
+)
