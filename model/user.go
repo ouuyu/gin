@@ -7,9 +7,11 @@ import (
 
 type User struct {
 	ID               int    `json:"id" gorm:"type:int;primaryKey"`
-	Username         string `json:"username" gorm:"unique;index" validate:"max=12"`
-	Password         string `json:"password" gorm:"not null;" validate:"min=8,max=30"`
-	Role             int    `json:"role" gorm:"type:int;default:1"`   // root is 100, common user is 1
+	Username         string `json:"username" gorm:"unique;index" validate:"required,min=5,max=12"`
+	Password         string `json:"password" validate:"required,min=6,max=20"`
+	Role             int    `json:"role" gorm:"default:0"`
+	GroupId          int    `json:"group_id" gorm:"default:0"`        // 用户所属的组ID
+	GroupName        string `json:"group_name" gorm:"-"`              // 组名称，不存储在数据库中
 	Status           int    `json:"status" gorm:"type:int;default:1"` // enabled, disabled
 	Token            string `json:"token" gorm:"index"`
 	Email            string `json:"email" gorm:"index" validate:"max=50"`
@@ -101,4 +103,17 @@ func GetUserCount() (int64, error) {
 	var count int64
 	err := DB.Model(&User{}).Count(&count).Error
 	return count, err
+}
+
+// UpdateGroup 更新用户的组信息
+func (u *User) UpdateGroup(groupId int) error {
+	u.GroupId = groupId
+	return DB.Model(u).Update("group_id", groupId).Error
+}
+
+// GetUsersByGroupId 获取同组的所有用户
+func GetUsersByGroupId(groupId int) ([]User, error) {
+	var users []User
+	err := DB.Where("group_id = ?", groupId).Find(&users).Error
+	return users, err
 }

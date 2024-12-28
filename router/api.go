@@ -33,4 +33,15 @@ func SetApiRouter(router *gin.Engine) {
 		systemRouter.GET("/user/list", controller.GetUserList)
 		systemRouter.POST("/user/update", controller.UpdateUser)
 	}
+
+	// 用户组管理路由
+	groupController := &controller.GroupController{}
+	groups := api.Group("/groups")
+	{
+		groups.POST("", groupController.CreateGroup)       // 创建用户组
+		groups.GET("", groupController.GetAllGroups)       // 获取所有用户组
+		groups.PUT("/:id", groupController.UpdateGroup)    // 更新用户组
+		groups.DELETE("/:id", groupController.DeleteGroup) // 删除用户组
+		groups.GET("/:id", groupController.GetGroup)       // 获取用户组信息
+	}
 }
