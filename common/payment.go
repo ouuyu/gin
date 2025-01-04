@@ -29,10 +29,10 @@ func GeneratePayURL(amount float64, payType string, param string, tradeNo string
 	if err != nil {
 		return "", err
 	}
-	html := "<form id='alipaysubmit' name='alipaysubmit' action='" + url + "' method='POST'>"
+	html := `<form id='alipaysubmit' name='alipaysubmit' action='` + url + `' method='POST' target='_blank'>`
 	for key, value := range params {
-		html += "<input type='hidden' name='" + key + "' value='" + value + "'/>"
+		html += `<input type='hidden' name='` + key + `' value='` + value + `'/>`
 	}
-	html += "<input type='submit'>POST</form>"
+	html += `<input type='submit'>POST</form>`
 	return html, nil
 }

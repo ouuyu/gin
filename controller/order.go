@@ -75,7 +75,7 @@ func GetOrderList(c *gin.Context) {
 }
 
 func QueryOrder(c *gin.Context) {
-	tradeNo := c.Query("trade_no")
+	tradeNo := c.Param("trade_no")
 	order, err := model.GetOrderByOrderNo(tradeNo)
 	if err != nil {
 		common.Fail(c, http.StatusInternalServerError, "订单不存在: "+err.Error())

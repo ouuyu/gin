@@ -46,12 +46,21 @@ func SetApiRouter(router *gin.Engine) {
 		groupRouter.GET("/info/:id", controller.GetGroup)
 	}
 
-	orderRouter := api.Group("/orders")
+	// 订单相关路由
+	orderRouter := api.Group("/order")
 	orderRouter.Use(middleware.AuthUser())
 	{
-		orderRouter.POST("/recharge", controller.CreateOrder)
 		orderRouter.GET("/list", controller.GetOrderList)
-		orderRouter.GET("/query", controller.QueryOrder)
+		orderRouter.GET("/query/:trade_no", controller.QueryOrder)
+	}
+
+	// 余额相关路由
+	balanceRouter := api.Group("/balance")
+	balanceRouter.Use(middleware.AuthUser())
+	{
+		balanceRouter.POST("/recharge", controller.Recharge)  // 充值
+		balanceRouter.GET("/logs", controller.GetBalanceLogs) // 获取余额变动记录
+		balanceRouter.GET("/info", controller.GetBalance)     // 获取余额信息
 	}
 
 }
