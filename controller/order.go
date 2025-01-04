@@ -25,7 +25,7 @@ type CreateOrderRequest struct {
 func CreateOrder(c *gin.Context) {
 	var req CreateOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "参数错误", "error": err.Error()})
+		common.Fail(c, http.StatusBadRequest, "参数错误: "+err.Error())
 		return
 	}
 
@@ -35,7 +35,7 @@ func CreateOrder(c *gin.Context) {
 
 	user, err := model.GetUserById(c.GetInt("id"), false)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取用户信息失败", "error": err.Error()})
+		common.Fail(c, http.StatusInternalServerError, "获取用户信息失败: "+err.Error())
 		return
 	}
 	var order model.Order
@@ -48,21 +48,17 @@ func CreateOrder(c *gin.Context) {
 
 	err = order.Create()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "创建订单失败", "error": err.Error()})
+		common.Fail(c, http.StatusInternalServerError, "创建订单失败: "+err.Error())
 		return
 	}
 
 	payHTML, err := common.GeneratePayURL(req.Amount, req.PayType, req.Param, tradeNo)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "创建订单失败", "error": err.Error()})
+		common.Fail(c, http.StatusInternalServerError, "创建订单失败: "+err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "创建订单成功",
-		"data":    payHTML,
-	})
+	common.Success(c, payHTML)
 }
 
 func GetOrderList(c *gin.Context) {
@@ -71,22 +67,18 @@ func GetOrderList(c *gin.Context) {
 
 	orders, err := model.GetOrderList(page, pageSize)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "获取订单列表失败", "error": err.Error()})
+		common.Fail(c, http.StatusInternalServerError, "获取订单列表失败: "+err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "获取订单列表成功",
-		"data":    orders,
-	})
+	common.Success(c, orders)
 }
 
 func QueryOrder(c *gin.Context) {
 	tradeNo := c.Query("trade_no")
 	order, err := model.GetOrderByOrderNo(tradeNo)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "订单不存在", "error": err.Error()})
+		common.Fail(c, http.StatusInternalServerError, "订单不存在: "+err.Error())
 		return
 	}
 
@@ -102,10 +94,7 @@ func QueryOrder(c *gin.Context) {
 	}).Get(apiUrl.String())
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "查询订单状态失败 " + err.Error(),
-			"success": false,
-		})
+		common.Fail(c, http.StatusInternalServerError, "查询订单状态失败: "+err.Error())
 		return
 	}
 
@@ -118,11 +107,7 @@ func QueryOrder(c *gin.Context) {
 		order.UpdatePayStatus(1, tradeNo)
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": common.Ternary(Result.Status == "1", "已支付", "未支付"),
-		"data": gin.H{
-			"status": Result.Status,
-		},
+	common.Success(c, gin.H{
+		"status": Result.Status,
 	})
 }

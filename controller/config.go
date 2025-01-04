@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"main/common"
 	"main/model"
 	"net/http"
 
@@ -24,21 +25,13 @@ func GetCleanConfig(c *gin.Context) {
 		RecaptchaSiteKey:         config.RecaptchaSiteKey,
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "获取系统配置成功",
-		"data":    cleanConfig,
-	})
+	common.Success(c, cleanConfig)
 }
 
 func GetSystemConfigs(c *gin.Context) {
 	configs := model.GetConfig()
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "获取系统配置成功",
-		"data":    configs,
-	})
+	common.Success(c, configs)
 }
 
 type UpdateConfigRequest struct {
@@ -49,10 +42,7 @@ type UpdateConfigRequest struct {
 func UpdateSystemConfig(c *gin.Context) {
 	var req UpdateConfigRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "无效的参数",
-		})
+		common.Fail(c, http.StatusBadRequest, "无效的参数")
 		return
 	}
 
@@ -114,24 +104,14 @@ func UpdateSystemConfig(c *gin.Context) {
 	case "easy_pay_key":
 		config.EasyPayKey = req.Value
 	default:
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "无效的配置项",
-		})
+		common.Fail(c, http.StatusBadRequest, "无效的配置项")
 		return
 	}
 
 	if err := model.SaveConfig(*config); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "保存配置失败: " + err.Error(),
-		})
+		common.Fail(c, http.StatusInternalServerError, "保存配置失败: "+err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "更新配置成功",
-		"data":    config,
-	})
+	common.Success(c, config)
 }
